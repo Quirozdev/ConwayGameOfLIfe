@@ -2,6 +2,7 @@ package ui;
 
 import core.Cell;
 import core.Grid;
+import ui.theme.buttons.CellButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,11 +10,11 @@ import java.awt.*;
 public class GridPanel extends JPanel {
 
     private Grid grid;
-    private JButton[][] cellButtons;
+    private CellButton[][] cellButtons;
 
     public GridPanel(Grid grid) {
         this.grid = grid;
-        this.cellButtons = new JButton[grid.getCells().length][grid.getCells()[0].length];
+        this.cellButtons = new CellButton[grid.getCells().length][grid.getCells()[0].length];
         this.setLayout(new GridLayout(grid.getCells().length, grid.getCells()[0].length));
         this.generateCellButtons();
     }
@@ -22,12 +23,7 @@ public class GridPanel extends JPanel {
         Cell[][] cells = grid.getCells();
         for (int i = 0; i < cells.length; i++) {
             for (int j = 0; j < cells[i].length; j++) {
-                JButton button = new JButton();
-                if (cells[i][j].isAlive()) {
-                    button.setBackground(Color.BLACK);
-                } else {
-                    button.setBackground(Color.WHITE);
-                }
+                CellButton button = new CellButton(cells[i][j]);
                 this.add(button);
                 this.cellButtons[i][j] = button;
             }
@@ -39,7 +35,7 @@ public class GridPanel extends JPanel {
         Cell[][] cells = grid.getCells();
         for (int i = 0; i < cells.length; i++) {
             for (int j = 0; j < cells[i].length; j++) {
-                JButton button = this.cellButtons[i][j];
+                CellButton button = this.cellButtons[i][j];
                 if (cells[i][j].isAlive()) {
                     button.setBackground(Color.BLACK);
                 } else {

@@ -15,6 +15,7 @@ public class Ui {
 
     public void start() {
         JFrame frame = new JFrame();
+        frame.setMinimumSize(new Dimension(400, 400));
 
         GridPanel gridPanel = new GridPanel(this.grid);
         frame.getContentPane().add(BorderLayout.CENTER, gridPanel);

@@ -104,7 +104,16 @@ public class Grid {
                 }
             }
         }
-        this.cells = nextState;
+        // I had:
+        // this.cells = nextState
+        // there was a problem with that, the Cells references were new and
+        // "lost", so the buttons associated with them (CellButton) lost the connection
+        // with the Cell, so now i change each cell state withot recreating another one
+        for (int i = 0; i < nextState.length; i++) {
+            for (int j = 0; j < nextState[i].length; j++) {
+                this.cells[i][j].setAlive(nextState[i][j].isAlive());
+            }
+        }
         this.generations++;
     }
 
