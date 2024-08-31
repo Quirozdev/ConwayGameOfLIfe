@@ -1,24 +1,32 @@
+package core;
+
 public class Grid {
     private int generations;
     private Cell[][] cells;
-    
+
     public Grid() {
         this.generations = 0;
-        this.cells = new Cell[6][6];
+        this.cells = new Cell[48][48];
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
                 this.cells[i][j] = new Cell();
-//                if (Math.random() < 0.5) {
-//                    this.cells[i][j].live();
-//                }
             }
         }
-        this.cells[2][2].live();
-        this.cells[2][3].live();
-        this.cells[2][4].live();
-        this.cells[3][1].live();
-        this.cells[3][2].live();
-        this.cells[3][3].live();
+        this.generateRandomLiveCells();
+    }
+
+    private void generateRandomLiveCells() {
+        for (int i = 0; i < this.cells.length; i++) {
+            for (int j = 0; j < this.cells[i].length; j++) {
+                if (Math.random() < 0.3) {
+                    this.cells[i][j].live();
+                }
+            }
+        }
+    }
+
+    public Cell[][] getCells() {
+        return cells;
     }
 
     public int getGenerations() {

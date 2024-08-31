@@ -1,12 +1,11 @@
+import core.Grid;
+import ui.Ui;
+
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Grid grid = new Grid();
 
-        while (grid.areCellsAlive()) {
-            System.out.println(grid);
-            System.out.println();
-            Thread.sleep(2000);
-            grid.advanceGeneration();
-        }
+        Ui ui = new Ui(grid);
+        ui.start();
     }
 }
