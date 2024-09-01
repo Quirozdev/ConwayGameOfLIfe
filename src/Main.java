@@ -1,11 +1,11 @@
-import core.Grid;
+import core.GameGrid;
 import ui.Ui;
 
 public class Main {
     public static void main(String[] args) {
-        Grid grid = new Grid();
+        GameGrid gameGrid = new GameGrid();
 
-        Ui ui = new Ui(grid);
+        Ui ui = new Ui(gameGrid);
         ui.start();
     }
 }

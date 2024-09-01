@@ -1,7 +1,6 @@
 package ui.theme.buttons;
 
 import core.Cell;
-import core.Grid;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,7 +1,7 @@
 package ui;
 
 import core.Cell;
-import core.Grid;
+import core.GameGrid;
 import ui.theme.buttons.CellButton;
 
 import javax.swing.*;
@@ -9,18 +9,18 @@ import java.awt.*;
 
 public class GridPanel extends JPanel {
 
-    private Grid grid;
+    private GameGrid gameGrid;
     private CellButton[][] cellButtons;
 
-    public GridPanel(Grid grid) {
-        this.grid = grid;
-        this.cellButtons = new CellButton[grid.getCells().length][grid.getCells()[0].length];
-        this.setLayout(new GridLayout(grid.getCells().length, grid.getCells()[0].length));
+    public GridPanel(GameGrid gameGrid) {
+        this.gameGrid = gameGrid;
+        this.cellButtons = new CellButton[gameGrid.getCells().length][gameGrid.getCells()[0].length];
+        this.setLayout(new GridLayout(gameGrid.getCells().length, gameGrid.getCells()[0].length));
         this.generateCellButtons();
     }
 
     private void generateCellButtons() {
-        Cell[][] cells = grid.getCells();
+        Cell[][] cells = gameGrid.getCells();
         for (int i = 0; i < cells.length; i++) {
             for (int j = 0; j < cells[i].length; j++) {
                 CellButton button = new CellButton(cells[i][j]);
@@ -32,7 +32,7 @@ public class GridPanel extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
-        Cell[][] cells = grid.getCells();
+        Cell[][] cells = gameGrid.getCells();
         for (int i = 0; i < cells.length; i++) {
             for (int j = 0; j < cells[i].length; j++) {
                 CellButton button = this.cellButtons[i][j];

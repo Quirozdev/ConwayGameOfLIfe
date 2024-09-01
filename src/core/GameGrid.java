@@ -1,10 +1,10 @@
 package core;
 
-public class Grid {
+public class GameGrid {
     private int generations;
     private Cell[][] cells;
 
-    public Grid() {
+    public GameGrid() {
         this.generations = 0;
         this.cells = new Cell[48][48];
         for (int i = 0; i < this.cells.length; i++) {
@@ -15,9 +15,18 @@ public class Grid {
         this.generateRandomLiveCells();
     }
 
-    private void generateRandomLiveCells() {
+    public void clearCells() {
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
+                this.cells[i][j].setAlive(false);
+            }
+        }
+    }
+
+public void generateRandomLiveCells() {
+        for (int i = 0; i < this.cells.length; i++) {
+            for (int j = 0; j < this.cells[i].length; j++) {
+                this.cells[i][j].setAlive(false);
                 if (Math.random() < 0.3) {
                     this.cells[i][j].live();
                 }
@@ -108,7 +117,7 @@ public class Grid {
         // this.cells = nextState
         // there was a problem with that, the Cells references were new and
         // "lost", so the buttons associated with them (CellButton) lost the connection
-        // with the Cell, so now i change each cell state withot recreating another one
+        // with the Cell, so now I change each cell state without recreating another one
         for (int i = 0; i < nextState.length; i++) {
             for (int j = 0; j < nextState[i].length; j++) {
                 this.cells[i][j].setAlive(nextState[i][j].isAlive());

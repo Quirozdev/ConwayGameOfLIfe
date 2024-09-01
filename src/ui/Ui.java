@@ -1,25 +1,25 @@
 package ui;
 
-import core.Grid;
+import core.GameGrid;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Ui {
 
-    private Grid grid;
+    private GameGrid gameGrid;
 
-    public Ui(Grid grid) {
-        this.grid = grid;
+    public Ui(GameGrid gameGrid) {
+        this.gameGrid = gameGrid;
     }
 
     public void start() {
         JFrame frame = new JFrame();
         frame.setMinimumSize(new Dimension(400, 400));
 
-        GridPanel gridPanel = new GridPanel(this.grid);
+        GridPanel gridPanel = new GridPanel(this.gameGrid);
         frame.getContentPane().add(BorderLayout.CENTER, gridPanel);
-        frame.getContentPane().add(BorderLayout.EAST, new MenuSectionPanel(this.grid, gridPanel));
+        frame.getContentPane().add(BorderLayout.EAST, new MenuSectionPanel(this.gameGrid, gridPanel));
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Game Of Life");

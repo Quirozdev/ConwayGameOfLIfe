@@ -1,6 +1,6 @@
 package ui;
 
-import core.Grid;
+import core.GameGrid;
 import ui.theme.buttons.Button;
 import ui.theme.labels.Label;
 
@@ -12,20 +12,20 @@ import java.awt.event.ActionListener;
 
 public class MenuSectionPanel extends JPanel {
 
-    private Grid grid;
+    private GameGrid gameGrid;
     private GridPanel gridPanel;
     private JLabel generationsLabel;
     private JLabel populationLabel;
 
-    public MenuSectionPanel(Grid grid, GridPanel gridPanel) {
-        this.grid = grid;
+    public MenuSectionPanel(GameGrid gameGrid, GridPanel gridPanel) {
+        this.gameGrid = gameGrid;
         this.gridPanel = gridPanel;
         this.setUp();
     }
 
     private void setUp() {
-        generationsLabel = new Label("Generations: " + grid.getGenerations());
-        populationLabel = new Label("Population: " + grid.getLiveCells());
+        generationsLabel = new Label("Generations: " + gameGrid.getGenerations());
+        populationLabel = new Label("Population: " + gameGrid.getLiveCells());
 
         GridLayout layout = new GridLayout(4, 1);
         layout.setHgap(20);
@@ -47,11 +47,14 @@ public class MenuSectionPanel extends JPanel {
         private void setUp() {
             JButton startButton = new Button("Start", new Color(87, 204, 153));
             JButton stopButton = new Button("Stop", new Color(230, 57, 70));
+            JButton randomizeButton = new Button("Randomize", new Color(255, 130, 37));
+            JButton resetButton = new Button("Clear", new Color(22, 50, 91));
+
 
             ActionListener startListener = e -> {
-                grid.advanceGeneration();
-                generationsLabel.setText("Generations: " + grid.getGenerations());
-                populationLabel.setText("Population: " + grid.getLiveCells());
+                gameGrid.advanceGeneration();
+                generationsLabel.setText("Generations: " + gameGrid.getGenerations());
+                populationLabel.setText("Population: " + gameGrid.getLiveCells());
                 gridPanel.repaint();
             };
 
@@ -71,8 +74,20 @@ public class MenuSectionPanel extends JPanel {
                 stopButton.setEnabled(false);
             });
 
+            randomizeButton.addActionListener(e -> {
+                gameGrid.generateRandomLiveCells();
+                gridPanel.repaint();
+            });
+
+            resetButton.addActionListener(e -> {
+               gameGrid.clearCells();
+               gridPanel.repaint();
+            });
+
             this.add(startButton);
             this.add(stopButton);
+            this.add(randomizeButton);
+            this.add(resetButton);
         }
     }
 }
