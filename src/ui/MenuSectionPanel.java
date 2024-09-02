@@ -61,11 +61,18 @@ public class MenuSectionPanel extends JPanel {
             this.resetButton = new Button("Reset", new Color(22, 50, 91));
             this.resetButton.setEnabled(false);
 
+            Timer timer = new Timer(100, null);
             ActionListener startListener = e -> {
-                gameGrid.advanceGeneration();
+                if (!gameGrid.areCellsAlive()) {
+                    timer.stop();
+                    startButton.setEnabled(true);
+                    stopButton.setEnabled(false);
+                    resetButton.setEnabled(true);
+                } else {
+                    gameGrid.advanceGeneration();
+                }
             };
-
-            Timer timer = new Timer(100, startListener);
+            timer.addActionListener(startListener);
             timer.setRepeats(true);
 
             startButton.addActionListener(e -> {
@@ -119,7 +126,7 @@ public class MenuSectionPanel extends JPanel {
         }
 
         @Override
-        public void update(GameGridEvent event) {
+        public void update(GameGridEvent event, int row, int col) {
             switch (event) {
                 case ADVANCE_GENERATION:
                     generationsLabel.setText("Generations: " + gameGrid.getGenerations());
@@ -130,6 +137,7 @@ public class MenuSectionPanel extends JPanel {
                     generationsLabel.setText("Generations: " + gameGrid.getGenerations());
                     populationLabel.setText("Population: " + gameGrid.getLiveCells());
                     gridPanel.repaint();
+                    this.resetButton.setEnabled(true);
                     break;
                 case RESET:
                     generationsLabel.setText("Generations: " + gameGrid.getGenerations());

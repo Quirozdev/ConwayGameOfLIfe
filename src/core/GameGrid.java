@@ -8,7 +8,8 @@ import java.util.List;
 
 public class GameGrid implements Publisher<GameGridEvent> {
     private int generations;
-    private Cell[][] cells;
+    private boolean[][] cells;
+    private int liveCells;
     private List<Subscriber<GameGridEvent>> subscribers;
 
     public GameGrid(int width, int height) {
@@ -16,11 +17,12 @@ public class GameGrid implements Publisher<GameGridEvent> {
             throw new IllegalArgumentException("width and height must be greater than 0");
         }
         this.generations = 0;
+        this.liveCells = 0;
         this.subscribers = new ArrayList<>();
-        this.cells = new Cell[height][width];
+        this.cells = new boolean[height][width];
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
-                this.cells[i][j] = new Cell();
+                this.cells[i][j] = false;
             }
         }
     }
@@ -29,29 +31,56 @@ public class GameGrid implements Publisher<GameGridEvent> {
         this(48, 48);
     }
 
+    public void toggleCellState(int row, int col) {
+        if (!this.cells[row][col]) {
+            this.reviveCell(row, col);
+        } else {
+            this.killCell(row, col);
+        }
+    }
+
+    public void reviveCell(int row, int col) {
+        if (!this.cells[row][col]) {
+            this.liveCells++;
+        }
+        this.cells[row][col] = true;
+        this.notifySubscribers(GameGridEvent.CELL_LIVE, row, col);
+    }
+
+    public void killCell(int row, int col) {
+        if (this.cells[row][col]) {
+            this.liveCells--;
+        }
+        this.cells[row][col] = false;
+        this.notifySubscribers(GameGridEvent.CELL_DIE, row, col);
+    }
+
     public void reset() {
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
-                this.cells[i][j].setAlive(false);
+                this.killCell(i, j);
             }
         }
         this.generations = 0;
-        this.notifySubscribers(GameGridEvent.RESET);
+        this.liveCells = 0;
+        this.notifySubscribers(GameGridEvent.RESET, 0, 0);
     }
 
 public void generateRandomLiveCells() {
+        this.liveCells = 0;
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
-                this.cells[i][j].setAlive(false);
+                this.cells[i][j] = false;
                 if (Math.random() < 0.3) {
-                    this.cells[i][j].live();
+                    this.reviveCell(i, j);
+                    this.liveCells++;
                 }
             }
         }
-        this.notifySubscribers(GameGridEvent.RANDOMIZATION);
+        this.notifySubscribers(GameGridEvent.RANDOMIZATION, 0, 0);
     }
 
-    public Cell[][] getCells() {
+    public boolean[][] getCells() {
         return cells;
     }
 
@@ -59,38 +88,22 @@ public void generateRandomLiveCells() {
         return this.generations;
     }
 
-    private Cell[][] getCurrentStateCopy() {
-        Cell[][] currentState = new Cell[this.cells.length][this.cells[0].length];
+    private boolean[][] getCurrentStateCopy() {
+        boolean[][] copy = new boolean[this.cells.length][this.cells[0].length];
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
-                currentState[i][j] = new Cell();
-                currentState[i][j].setAlive(this.cells[i][j].isAlive());
+                copy[i][j] = this.cells[i][j];
             }
         }
-        return currentState;
+        return copy;
     }
 
     public boolean areCellsAlive() {
-        for (int i = 0; i < this.cells.length; i++) {
-            for (int j = 0; j < this.cells[i].length; j++) {
-                if (this.cells[i][j].isAlive()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return this.liveCells > 0;
     }
 
     public int getLiveCells() {
-        int liveCells = 0;
-        for (int i = 0; i < this.cells.length; i++) {
-            for (int j = 0; j < this.cells[i].length; j++) {
-                if (this.cells[i][j].isAlive()) {
-                    liveCells++;
-                }
-            }
-        }
-        return liveCells;
+        return this.liveCells;
     }
 
     private int getTotalLiveNeighbours(int x, int y) {
@@ -104,7 +117,7 @@ public void generateRandomLiveCells() {
                 if (j == x && i == y) {
                     continue;
                 }
-                if (cells[i][j].isAlive()) {
+                if (cells[i][j]) {
                     neighbours++;
                 }
             }
@@ -113,35 +126,29 @@ public void generateRandomLiveCells() {
     }
 
     public void advanceGeneration() {
-        Cell[][] nextState = this.getCurrentStateCopy();
+        boolean[][] nextState = this.getCurrentStateCopy();
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
                 int liveNeighbours = this.getTotalLiveNeighbours(j, i);
-                Cell cell = this.cells[i][j];
-                if (!cell.isAlive() && liveNeighbours == 3) {
+                boolean cell = this.cells[i][j];
+                if (!cell && liveNeighbours == 3) {
                     // reproduction
-                    nextState[i][j].live();
-                } else if (cell.isAlive() && liveNeighbours < 2) {
+                    nextState[i][j] = true;
+                    this.liveCells++;
+                } else if (cell && liveNeighbours < 2) {
                     // underpopulation
-                    nextState[i][j].die();
-                } else if (cell.isAlive() && liveNeighbours > 3) {
+                    nextState[i][j] = false;
+                    this.liveCells--;
+                } else if (cell && liveNeighbours > 3) {
                     // overpopulation
-                    nextState[i][j].die();
+                    nextState[i][j] = false;
+                    this.liveCells--;
                 }
             }
         }
-        // I had:
-        // this.cells = nextState
-        // there was a problem with that, the Cells references were new and
-        // "lost", so the buttons associated with them (CellButton) lost the connection
-        // with the Cell, so now I change each cell state without recreating another one
-        for (int i = 0; i < nextState.length; i++) {
-            for (int j = 0; j < nextState[i].length; j++) {
-                this.cells[i][j].setAlive(nextState[i][j].isAlive());
-            }
-        }
+        this.cells = nextState;
         this.generations++;
-        this.notifySubscribers(GameGridEvent.ADVANCE_GENERATION);
+        this.notifySubscribers(GameGridEvent.ADVANCE_GENERATION, 0, 0);
     }
 
     @Override
@@ -149,9 +156,9 @@ public void generateRandomLiveCells() {
         StringBuilder sb = new StringBuilder();
         sb.append("Generation: ").append(this.getGenerations()).append("\n");
         sb.append("Population: ").append(this.getLiveCells()).append("\n");
-        for (Cell[] cellsRow : this.cells) {
-            for (Cell cell : cellsRow) {
-                    sb.append(cell).append(" ");
+        for (boolean[] cellsRow : this.cells) {
+            for (boolean cell : cellsRow) {
+                    sb.append(cell ? "O" : ".").append(" ");
             }
             sb.append("\n");
         }
@@ -169,9 +176,9 @@ public void generateRandomLiveCells() {
     }
 
     @Override
-    public void notifySubscribers(GameGridEvent event) {
+    public void notifySubscribers(GameGridEvent event, int row, int col) {
         for (Subscriber<GameGridEvent> subscriber: this.subscribers) {
-            subscriber.update(event);
+            subscriber.update(event, row, col);
         }
     }
 }

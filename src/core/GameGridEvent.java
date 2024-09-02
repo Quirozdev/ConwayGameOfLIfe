@@ -5,5 +5,7 @@ public enum GameGridEvent {
     RANDOMIZATION,
     RESET,
     WIDTH_CHANGED,
-    HEIGHT_CHANGED
+    HEIGHT_CHANGED,
+    CELL_LIVE,
+    CELL_DIE,
 }
