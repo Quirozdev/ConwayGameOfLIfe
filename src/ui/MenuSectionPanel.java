@@ -48,7 +48,7 @@ public class MenuSectionPanel extends JPanel {
             JButton startButton = new Button("Start", new Color(87, 204, 153));
             JButton stopButton = new Button("Stop", new Color(230, 57, 70));
             JButton randomizeButton = new Button("Randomize", new Color(255, 130, 37));
-            JButton resetButton = new Button("Clear", new Color(22, 50, 91));
+            JButton resetButton = new Button("Reset", new Color(22, 50, 91));
 
 
             ActionListener startListener = e -> {
@@ -65,6 +65,8 @@ public class MenuSectionPanel extends JPanel {
                 timer.start();
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
+                randomizeButton.setEnabled(false);
+                resetButton.setEnabled(false);
             });
 
 
@@ -72,17 +74,27 @@ public class MenuSectionPanel extends JPanel {
                 timer.stop();
                 startButton.setEnabled(true);
                 stopButton.setEnabled(false);
+                resetButton.setEnabled(true);
             });
 
             randomizeButton.addActionListener(e -> {
                 gameGrid.generateRandomLiveCells();
+                generationsLabel.setText("Generations: " + gameGrid.getGenerations());
+                populationLabel.setText("Population: " + gameGrid.getLiveCells());
                 gridPanel.repaint();
             });
 
             resetButton.addActionListener(e -> {
-               gameGrid.clearCells();
+               gameGrid.reset();
+               generationsLabel.setText("Generations: " + gameGrid.getGenerations());
+               populationLabel.setText("Population: " + 0);
                gridPanel.repaint();
+               randomizeButton.setEnabled(true);
             });
+
+            GridLayout layout = new GridLayout(4, 1);
+            layout.setVgap(8);
+            this.setLayout(layout);
 
             this.add(startButton);
             this.add(stopButton);

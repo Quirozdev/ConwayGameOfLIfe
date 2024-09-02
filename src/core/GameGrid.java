@@ -4,23 +4,30 @@ public class GameGrid {
     private int generations;
     private Cell[][] cells;
 
-    public GameGrid() {
+    public GameGrid(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            throw new IllegalArgumentException("width and height must be greater than 0");
+        }
         this.generations = 0;
-        this.cells = new Cell[48][48];
+        this.cells = new Cell[height][width];
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
                 this.cells[i][j] = new Cell();
             }
         }
-        this.generateRandomLiveCells();
     }
 
-    public void clearCells() {
+    public GameGrid() {
+        this(48, 48);
+    }
+
+    public void reset() {
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
                 this.cells[i][j].setAlive(false);
             }
         }
+        this.generations = 0;
     }
 
 public void generateRandomLiveCells() {
