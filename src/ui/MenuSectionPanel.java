@@ -1,6 +1,8 @@
 package ui;
 
 import core.GameGrid;
+import core.GameGridEvent;
+import interfaces.Subscriber;
 import ui.theme.buttons.Button;
 import ui.theme.labels.Label;
 
@@ -17,16 +19,15 @@ public class MenuSectionPanel extends JPanel {
     private JLabel generationsLabel;
     private JLabel populationLabel;
 
-    public MenuSectionPanel(GameGrid gameGrid, GridPanel gridPanel) {
+    public MenuSectionPanel(GameGrid gameGrid, GridPanel gridPanel, JLabel generationsLabel, JLabel populationLabel) {
         this.gameGrid = gameGrid;
         this.gridPanel = gridPanel;
+        this.generationsLabel = generationsLabel;
+        this.populationLabel = populationLabel;
         this.setUp();
     }
 
     private void setUp() {
-        generationsLabel = new Label("Generations: " + gameGrid.getGenerations());
-        populationLabel = new Label("Population: " + gameGrid.getLiveCells());
-
         GridLayout layout = new GridLayout(4, 1);
         layout.setHgap(20);
         this.setLayout(layout);
@@ -38,24 +39,30 @@ public class MenuSectionPanel extends JPanel {
         this.add(new ButtonsPanel());
     }
 
-    class ButtonsPanel extends JPanel {
+    class ButtonsPanel extends JPanel implements Subscriber<GameGridEvent> {
+
+        JButton startButton;
+        JButton stopButton;
+        JButton randomizeButton;
+        JButton resetButton;
+
 
         public ButtonsPanel() {
+            gameGrid.addSubscriber(this);
             this.setUp();
         }
 
         private void setUp() {
-            JButton startButton = new Button("Start", new Color(87, 204, 153));
-            JButton stopButton = new Button("Stop", new Color(230, 57, 70));
-            JButton randomizeButton = new Button("Randomize", new Color(255, 130, 37));
-            JButton resetButton = new Button("Reset", new Color(22, 50, 91));
+            this.startButton = new Button("Start", new Color(87, 204, 153));
+            this.stopButton = new Button("Stop", new Color(230, 57, 70));
+            this.stopButton.setEnabled(false);
 
+            this.randomizeButton = new Button("Randomize", new Color(255, 130, 37));
+            this.resetButton = new Button("Reset", new Color(22, 50, 91));
+            this.resetButton.setEnabled(false);
 
             ActionListener startListener = e -> {
                 gameGrid.advanceGeneration();
-                generationsLabel.setText("Generations: " + gameGrid.getGenerations());
-                populationLabel.setText("Population: " + gameGrid.getLiveCells());
-                gridPanel.repaint();
             };
 
             Timer timer = new Timer(100, startListener);
@@ -79,17 +86,24 @@ public class MenuSectionPanel extends JPanel {
 
             randomizeButton.addActionListener(e -> {
                 gameGrid.generateRandomLiveCells();
-                generationsLabel.setText("Generations: " + gameGrid.getGenerations());
-                populationLabel.setText("Population: " + gameGrid.getLiveCells());
-                gridPanel.repaint();
             });
 
             resetButton.addActionListener(e -> {
                gameGrid.reset();
-               generationsLabel.setText("Generations: " + gameGrid.getGenerations());
-               populationLabel.setText("Population: " + 0);
-               gridPanel.repaint();
-               randomizeButton.setEnabled(true);
+            });
+
+            JSlider widthSlider = new JSlider();
+            widthSlider.setMinimum(1);
+            widthSlider.setMaximum(1000);
+            widthSlider.setMajorTickSpacing(250);
+            widthSlider.setMinorTickSpacing(50);
+            widthSlider.setPaintTicks(true);
+            widthSlider.setPaintLabels(true);
+            widthSlider.addChangeListener(e -> {
+                JSlider source = (JSlider) e.getSource();
+                if (!source.getValueIsAdjusting()) {
+                    System.out.println("XDD");
+                }
             });
 
             GridLayout layout = new GridLayout(4, 1);
@@ -100,6 +114,30 @@ public class MenuSectionPanel extends JPanel {
             this.add(stopButton);
             this.add(randomizeButton);
             this.add(resetButton);
+
+            this.add(widthSlider);
+        }
+
+        @Override
+        public void update(GameGridEvent event) {
+            switch (event) {
+                case ADVANCE_GENERATION:
+                    generationsLabel.setText("Generations: " + gameGrid.getGenerations());
+                    populationLabel.setText("Population: " + gameGrid.getLiveCells());
+                    gridPanel.repaint();
+                    break;
+                case RANDOMIZATION:
+                    generationsLabel.setText("Generations: " + gameGrid.getGenerations());
+                    populationLabel.setText("Population: " + gameGrid.getLiveCells());
+                    gridPanel.repaint();
+                    break;
+                case RESET:
+                    generationsLabel.setText("Generations: " + gameGrid.getGenerations());
+                    populationLabel.setText("Population: " + 0);
+                    gridPanel.repaint();
+                    randomizeButton.setEnabled(true);
+                    this.resetButton.setEnabled(false);
+            }
         }
     }
 }

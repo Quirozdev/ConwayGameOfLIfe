@@ -1,14 +1,22 @@
 package core;
 
-public class GameGrid {
+import interfaces.Publisher;
+import interfaces.Subscriber;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameGrid implements Publisher<GameGridEvent> {
     private int generations;
     private Cell[][] cells;
+    private List<Subscriber<GameGridEvent>> subscribers;
 
     public GameGrid(int width, int height) {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("width and height must be greater than 0");
         }
         this.generations = 0;
+        this.subscribers = new ArrayList<>();
         this.cells = new Cell[height][width];
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {
@@ -28,6 +36,7 @@ public class GameGrid {
             }
         }
         this.generations = 0;
+        this.notifySubscribers(GameGridEvent.RESET);
     }
 
 public void generateRandomLiveCells() {
@@ -39,6 +48,7 @@ public void generateRandomLiveCells() {
                 }
             }
         }
+        this.notifySubscribers(GameGridEvent.RANDOMIZATION);
     }
 
     public Cell[][] getCells() {
@@ -131,6 +141,7 @@ public void generateRandomLiveCells() {
             }
         }
         this.generations++;
+        this.notifySubscribers(GameGridEvent.ADVANCE_GENERATION);
     }
 
     @Override
@@ -145,5 +156,22 @@ public void generateRandomLiveCells() {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    @Override
+    public void addSubscriber(Subscriber<GameGridEvent> subscriber) {
+        this.subscribers.add(subscriber);
+    }
+
+    @Override
+    public void removeSubscriber(Subscriber<GameGridEvent> subscriber) {
+        this.subscribers.remove(subscriber);
+    }
+
+    @Override
+    public void notifySubscribers(GameGridEvent event) {
+        for (Subscriber<GameGridEvent> subscriber: this.subscribers) {
+            subscriber.update(event);
+        }
     }
 }

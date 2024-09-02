@@ -1,19 +1,23 @@
 package ui;
 
 import core.Cell;
+import core.CellEvent;
 import core.GameGrid;
+import interfaces.Subscriber;
 import ui.theme.buttons.CellButton;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class GridPanel extends JPanel {
+public class GridPanel extends JPanel implements Subscriber<CellEvent> {
 
     private GameGrid gameGrid;
     private CellButton[][] cellButtons;
+    private JLabel populationLabel;
 
-    public GridPanel(GameGrid gameGrid) {
+    public GridPanel(GameGrid gameGrid, JLabel populationLabel) {
         this.gameGrid = gameGrid;
+        this.populationLabel = populationLabel;
         this.cellButtons = new CellButton[gameGrid.getCells().length][gameGrid.getCells()[0].length];
         this.setLayout(new GridLayout(gameGrid.getCells().length, gameGrid.getCells()[0].length));
         this.generateCellButtons();
@@ -26,6 +30,8 @@ public class GridPanel extends JPanel {
                 CellButton button = new CellButton(cells[i][j]);
                 this.add(button);
                 this.cellButtons[i][j] = button;
+                cells[i][j].addSubscriber(button);
+                cells[i][j].addSubscriber(this);
             }
         }
     }
@@ -44,5 +50,14 @@ public class GridPanel extends JPanel {
             }
         }
         super.paintComponent(g);
+    }
+
+    @Override
+    public void update(CellEvent event) {
+        if (event == CellEvent.LIVE) {
+            populationLabel.setText("Population: " + gameGrid.getLiveCells());
+        } else if (event == CellEvent.DIE) {
+            populationLabel.setText("Population: " + gameGrid.getLiveCells());
+        }
     }
 }

@@ -1,7 +1,9 @@
 package interfaces;
 
-public interface Publisher {
-    void addSubscriber(Subscriber subscriber);
-    void removeSubscriber(Subscriber subscriber);
-    void notifySubscribers(String eventType);
+import core.GameGridEvent;
+
+public interface Publisher<E> {
+    void addSubscriber(Subscriber<E> subscriber);
+    void removeSubscriber(Subscriber<E> subscriber);
+    void notifySubscribers(E event);
 }

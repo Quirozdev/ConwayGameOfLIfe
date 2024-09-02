@@ -1,5 +1,7 @@
 package interfaces;
 
-public interface Subscriber {
-    void update(String eventType);
+import core.GameGridEvent;
+
+public interface Subscriber<E> {
+    void update(E event);
 }
