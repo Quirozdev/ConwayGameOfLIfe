@@ -20,6 +20,7 @@ public class Ui {
 
     public void start() {
         JFrame frame = new JFrame();
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setMinimumSize(new Dimension(400, 400));
 
         GridPanel gridPanel = new GridPanel(this.gameGrid, populationLabel);
@@ -28,7 +29,6 @@ public class Ui {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("Game Of Life");
-        frame.setSize(800, 600);
         frame.setVisible(true);
     }
 }

@@ -55,6 +55,22 @@ public class GameGrid implements Publisher<GameGridEvent> {
         this.notifySubscribers(GameGridEvent.CELL_DIE, row, col);
     }
 
+    public void setWidth(int width) {
+        if (width <= 0) {
+            throw new IllegalArgumentException("width must be greater than 0");
+        }
+        this.cells = new boolean[this.cells[0].length][width];
+        this.notifySubscribers(GameGridEvent.WIDTH_CHANGED, 0, 0);
+    }
+
+    public void setHeight(int height) {
+        if (height <= 0) {
+            throw new IllegalArgumentException("height must be greater than 0");
+        }
+        this.cells = new boolean[height][this.cells.length];
+        this.notifySubscribers(GameGridEvent.HEIGHT_CHANGED, 0, 0);
+    }
+
     public void reset() {
         for (int i = 0; i < this.cells.length; i++) {
             for (int j = 0; j < this.cells[i].length; j++) {

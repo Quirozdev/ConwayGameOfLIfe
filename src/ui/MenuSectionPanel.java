@@ -4,7 +4,6 @@ import core.GameGrid;
 import core.GameGridEvent;
 import interfaces.Subscriber;
 import ui.theme.buttons.Button;
-import ui.theme.labels.Label;
 
 
 import javax.swing.*;
@@ -18,12 +17,14 @@ public class MenuSectionPanel extends JPanel {
     private GridPanel gridPanel;
     private JLabel generationsLabel;
     private JLabel populationLabel;
+    private Timer timer;
 
     public MenuSectionPanel(GameGrid gameGrid, GridPanel gridPanel, JLabel generationsLabel, JLabel populationLabel) {
         this.gameGrid = gameGrid;
         this.gridPanel = gridPanel;
         this.generationsLabel = generationsLabel;
         this.populationLabel = populationLabel;
+        this.timer = new Timer(100, null);
         this.setUp();
     }
 
@@ -61,7 +62,6 @@ public class MenuSectionPanel extends JPanel {
             this.resetButton = new Button("Reset", new Color(22, 50, 91));
             this.resetButton.setEnabled(false);
 
-            Timer timer = new Timer(100, null);
             ActionListener startListener = e -> {
                 if (!gameGrid.areCellsAlive()) {
                     timer.stop();
@@ -72,6 +72,7 @@ public class MenuSectionPanel extends JPanel {
                     gameGrid.advanceGeneration();
                 }
             };
+
             timer.addActionListener(startListener);
             timer.setRepeats(true);
 
@@ -99,30 +100,36 @@ public class MenuSectionPanel extends JPanel {
                gameGrid.reset();
             });
 
-            JSlider widthSlider = new JSlider();
-            widthSlider.setMinimum(1);
-            widthSlider.setMaximum(1000);
-            widthSlider.setMajorTickSpacing(250);
-            widthSlider.setMinorTickSpacing(50);
-            widthSlider.setPaintTicks(true);
-            widthSlider.setPaintLabels(true);
-            widthSlider.addChangeListener(e -> {
-                JSlider source = (JSlider) e.getSource();
-                if (!source.getValueIsAdjusting()) {
-                    System.out.println("XDD");
-                }
-            });
 
             GridLayout layout = new GridLayout(4, 1);
             layout.setVgap(8);
+            layout.setHgap(8);
             this.setLayout(layout);
+
+
+            JLabel delayLabel = new JLabel("Delay: " + timer.getDelay() + " ms");
+            JSlider delaySlider = new JSlider();
+            delaySlider.setMinimum(1);
+            delaySlider.setMaximum(10000);
+            delaySlider.setMajorTickSpacing(9999);
+            delaySlider.setPaintLabels(true);
+            delaySlider.setValue(timer.getDelay());
+            delaySlider.addChangeListener(e -> {
+                JSlider source = (JSlider) e.getSource();
+                if (!source.getValueIsAdjusting()) {
+                    timer.setDelay(delaySlider.getValue());
+                    delayLabel.setText("Delay: " + timer.getDelay() + " ms");
+                }
+            });
+
 
             this.add(startButton);
             this.add(stopButton);
             this.add(randomizeButton);
             this.add(resetButton);
 
-            this.add(widthSlider);
+            this.add(delaySlider);
+            this.add(delayLabel);
         }
 
         @Override
@@ -145,6 +152,7 @@ public class MenuSectionPanel extends JPanel {
                     gridPanel.repaint();
                     randomizeButton.setEnabled(true);
                     this.resetButton.setEnabled(false);
+                    break;
             }
         }
     }
